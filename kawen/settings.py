@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'users',
     'graphene_django',
     'social_django',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -51,6 +52,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'kawen.urls'
@@ -141,6 +143,9 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
+
+
+CORS_ALLOW_ALL_ORIGINS = True
 
 SOCIAL_AUTH_FACEBOOK_KEY = "1296549687355797"
 SOCIAL_AUTH_FACEBOOK_SECRET = "97e7de9ec50fdaab9c52871f6d449b70"

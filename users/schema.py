@@ -5,6 +5,7 @@ from .models import Member
 class MemberType(DjangoObjectType):
     class Meta:
         model = Member
+        exclude = ["password"]
 
 
 class CreateMember(graphene.Mutation):
