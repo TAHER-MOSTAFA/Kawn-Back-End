@@ -155,6 +155,7 @@ SOCIAL_AUTH_FACEBOOK_EXTRA_DATA = [
     ('link', 'profile_url'),
 ]
 
+LOGIN_REDIRECT_URL ="login"
 
 
 django_heroku.settings(locals())

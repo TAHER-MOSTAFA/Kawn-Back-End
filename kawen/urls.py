@@ -11,5 +11,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('graphql/', csrf_exempt(GraphQLView.as_view(graphiql=True))),
     path('social-auth/', include('social_django.urls', namespace="social")),
-    path('login/',login)
+    path('login/',login, name="login")
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
