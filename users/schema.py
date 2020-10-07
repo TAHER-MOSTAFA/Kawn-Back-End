@@ -1,6 +1,8 @@
 import graphene
 from graphene_django import DjangoObjectType
 from .models import Member
+from django.shortcuts import get_object_or_404
+
 
 class MemberType(DjangoObjectType):
     class Meta:
@@ -28,9 +30,17 @@ class CreateMember(graphene.Mutation):
 
 class Query(graphene.ObjectType):
     members = graphene.List(MemberType)
+    check_email = graphene.Boolean(email = graphene.String())
+
+    def resolve_check_email(self, info, email, **Kwargs):
+        try:
+            Member.objects.get(email=email)
+            return True
+        except:
+            return False
+
 
     def resolve_members(self, info, **kwargs):
         return Member.objects.all()
-
 class Mutation(graphene.ObjectType):
     create_member = CreateMember.Field()
