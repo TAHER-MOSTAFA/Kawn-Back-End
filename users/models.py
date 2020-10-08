@@ -3,8 +3,8 @@ from django.contrib.auth.models import AbstractUser, UserManager
 
 
 class MemberManager(UserManager):
-
     def _create_user(self, full_name, email, password, **extra_fields):
+        super()._create_user(self,email,password,**extra_fields)
         email = self.normalize_email(email)
         user = self.model(email=email,full_name=full_name , **extra_fields)
         user.set_password(password)
@@ -21,6 +21,11 @@ class MemberManager(UserManager):
             raise ValueError('Superuser must have is_superuser=True.')
 
         return self._create_user(full_name, email, password, **extra_fields)
+    
+    def create_user(self, username, email=None, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', False)
+        extra_fields.setdefault('is_superuser', False)
+        return self._create_user(username, email, password, **extra_fields)
 
 class Member(AbstractUser):
     email = models.EmailField(unique=True,)
