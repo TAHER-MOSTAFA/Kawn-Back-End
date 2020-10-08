@@ -25,8 +25,8 @@ class MemberManager(UserManager):
 class Member(AbstractUser):
     email = models.EmailField(unique=True,)
     full_name = models.CharField(max_length=30)
-    image = models.ImageField(upload_to='media',default='1.jpg')
-    cover = models.ImageField(upload_to='media',default='1.jpg')
+    image = models.ImageField(upload_to='media/profile_pics',default='1.jpg')
+    cover = models.ImageField(upload_to='media/profile_pics',default='1.jpg')
 
 
     first_name = None
@@ -43,4 +43,11 @@ class Member(AbstractUser):
     
     def __str__(self):
         return self.full_name
-    
+
+
+class Circle(models.Model):
+    name = models.CharField(max_length=30, unique=True)
+    description = models.TextField()
+    date_created = models.DateField(auto_now_add=True)
+    icon = models.ImageField(upload_to="media/circlepics")
+    cover = models.ImageField(upload_to="media/circlepics")

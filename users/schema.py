@@ -1,14 +1,18 @@
-import graphene
-from graphene_django import DjangoObjectType
-from .models import Member
+import graphene 
+from graphene_django import DjangoObjectType, DjangoConnectionField
+from .models import Member, Circle
 from django.shortcuts import get_object_or_404
-
 
 class MemberType(DjangoObjectType):
     class Meta:
         model = Member
         exclude = ["password"]
 
+
+class CircleType(DjangoObjectType):
+    class Meta:
+        model = Circle
+        
 
 class CreateMember(graphene.Mutation):
     member = graphene.Field(MemberType)
@@ -28,9 +32,26 @@ class CreateMember(graphene.Mutation):
         return CreateMember(member=user)
 
 
+class CreateCircle(graphene.Mutation):
+    circle = graphene.Field(CircleType)
+
+    class Arguments:
+        name = graphene.String()
+        description = graphene.String()
+
+    def mutate(self, info, name, description, ):
+        circle = Circle(name=name, description=description)
+        circle.save()
+        return CreateCircle(circle)
+
+
 class Query(graphene.ObjectType):
     members = graphene.List(MemberType)
     check_email = graphene.Boolean(email = graphene.String())
+    circles = graphene.List(CircleType)
+    
+    def resolve_circles(self, info, ):
+        return Circle.objects.all()
 
     def resolve_check_email(self, info, email, **Kwargs):
         try:
@@ -39,8 +60,11 @@ class Query(graphene.ObjectType):
         except:
             return False
 
-
     def resolve_members(self, info, **kwargs):
         return Member.objects.all()
+
+
+
 class Mutation(graphene.ObjectType):
     create_member = CreateMember.Field()
+    CreateCircle = CreateCircle.Field()
