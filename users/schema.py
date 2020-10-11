@@ -2,6 +2,7 @@ import graphene
 from graphene_django import DjangoObjectType, DjangoConnectionField
 from .models import Member, Circle
 from django.shortcuts import get_object_or_404
+from graphql_jwt.decorators import login_required
 
 class MemberType(DjangoObjectType):
     class Meta:
@@ -46,9 +47,13 @@ class CreateCircle(graphene.Mutation):
 
 
 class Query(graphene.ObjectType):
-    members = graphene.List(MemberType)
     check_email = graphene.Boolean(email = graphene.String())
     circles = graphene.List(CircleType)
+    profile = graphene.Field(MemberType)
+
+    @login_required
+    def resolve_profile(self,info):
+        return info.context.user
     
     def resolve_circles(self, info, ):
         return Circle.objects.all()
@@ -59,10 +64,6 @@ class Query(graphene.ObjectType):
             return True
         except:
             return False
-
-    def resolve_members(self, info, **kwargs):
-        return Member.objects.all()
-
 
 
 class Mutation(graphene.ObjectType):
