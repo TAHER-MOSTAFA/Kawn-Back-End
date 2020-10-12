@@ -39,8 +39,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-
+    'todo.apps.TodoConfig',
     'users.apps.UsersConfig',
+
     'graphene_django',
     'social_django',
     'corsheaders',
