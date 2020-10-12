@@ -17,7 +17,8 @@ class TaskCardType(DjangoObjectType):
     tasks = graphene.List(TaskType)
 
     def resolve_tasks(self, info):
-        return Task.objects.filter(taskcard=self)
+        return self.task.all()
+    
 
 class CreateTaskCard(graphene.Mutation):
     taskcard = graphene.Field(TaskCardType)
@@ -126,8 +127,7 @@ class Query(graphene.ObjectType):
     
     @login_required
     def resolve_todo(self,info):
-        cards = TaskCard.objects.filter(user=info.context.user)
-        return cards
+        return TaskCard.objects.filter(user=info.context.user).prefetch_related('task')
 
 
 class Mutation(graphene.ObjectType):
