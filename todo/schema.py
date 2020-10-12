@@ -16,7 +16,7 @@ class TaskCardType(DjangoObjectType):
         model = TaskCard
     tasks = graphene.List(TaskType)
 
-    def resolve_tasks(self, info):
+    def resolve_task(self, info):
         return self.task.all()
     
 
@@ -135,3 +135,5 @@ class Mutation(graphene.ObjectType):
     Update_Task = UpdateTask.Field()
     Delete_Task = DeleteTask.Field()
     Create_TaskCard = CreateTaskCard.Field()
+    Update_TaskCard = UpdateTaskCard.Field()
+    Delete_TaskCard = DeleteTaskCard.Field()
