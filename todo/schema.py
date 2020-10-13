@@ -14,9 +14,9 @@ class TaskType(DjangoObjectType):
 class TaskCardType(DjangoObjectType):
     class Meta:
         model = TaskCard
-    tasks = graphene.List(TaskType)
+    # tasks = graphene.List(TaskType)
 
-    def resolve_task(self, info):
+    def resolve_tasks(self, info):
         return self.task.all()
     
 
