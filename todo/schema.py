@@ -94,11 +94,11 @@ class UpdateTaskCard(graphene.Mutation):
     @login_required
     def mutate(self, info,id ,name, *args, **kwargs):
         try : 
-            taskcard = TaskCard.objects.get(user=info.context.user, id=card_id)
+            taskcard = TaskCard.objects.get(user=info.context.user, id=id)
         except:
             raise Exception("No Such Task Card")
         taskcard.name = name
-        return CreateTaskCard(taskcard=card)
+        return UpdateTaskCard(taskcard=card)
 
 
 
@@ -111,10 +111,10 @@ class DeleteTaskCard(graphene.Mutation):
     @login_required
     def mutate(self, info, id , *args, **kwargs):
         try : 
-            taskcard = TaskCard.objects.filter(user=info.context.user, id=card_id).delete()
+            taskcard = TaskCard.objects.get(user=info.context.user, id=id).delete()
         except:
             raise Exception("No Such Task Card")
-        return CreateTaskCard("Done")
+        return DeleteTaskCard("Done")
 
 
 
