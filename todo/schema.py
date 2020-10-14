@@ -109,7 +109,7 @@ class DeleteTaskCard(graphene.Mutation):
         id = graphene.Int(required=True)
 
     @login_required
-    def mutate(self, info,id ,name, *args, **kwargs):
+    def mutate(self, info, id , *args, **kwargs):
         try : 
             taskcard = TaskCard.objects.filter(user=info.context.user, id=card_id).delete()
         except:
