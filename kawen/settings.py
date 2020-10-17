@@ -41,6 +41,7 @@ INSTALLED_APPS = [
 
     'todo.apps.TodoConfig',
     'users.apps.UsersConfig',
+    'notes.apps.NotesConfig',
 
     'graphene_django',
     'social_django',
