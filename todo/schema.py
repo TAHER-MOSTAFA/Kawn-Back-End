@@ -98,7 +98,7 @@ class UpdateTaskCard(graphene.Mutation):
         except:
             raise Exception("No Such Task Card")
         taskcard.name = name
-        return UpdateTaskCard(taskcard=card)
+        return UpdateTaskCard(taskcard=taskcard)
 
 
 
