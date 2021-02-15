@@ -1,16 +1,28 @@
-"""
-ASGI config for kawen project.
-
-It exposes the ASGI callable as a module-level variable named ``application``.
-
-For more information on this file, see
-https://docs.djangoproject.com/en/3.0/howto/deployment/asgi/
-"""
-
 import os
 
-from django.core.asgi import get_asgi_application
+import channels
+import channels_graphql_ws
+import django
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'kawen.settings')
+from .schema import schema
 
-application = get_asgi_application()
+
+class GraphqlWsConsumer(channels_graphql_ws.GraphqlWsConsumer):
+    schema = schema
+
+    async def on_connect(self, payload):
+        self.scope["user"] = await channels.auth.get_user(self.scope)
+
+
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "kawen.settings")
+
+
+application = channels.routing.ProtocolTypeRouter(
+    {
+        "websocket": channels.auth.AuthMiddlewareStack(
+            channels.routing.URLRouter(
+                [django.urls.path("graphql/", GraphqlWsConsumer)]
+            )
+        )
+    }
+)
