@@ -1,11 +1,14 @@
-from .models import Note
-import graphene 
+import graphene
 from graphene_django import DjangoObjectType
 from graphql_jwt.decorators import login_required
+
+from .models import Note
+
 
 class NoteType(DjangoObjectType):
     class Meta:
         model = Note
+
 
 class CreateNote(graphene.Mutation):
     note = graphene.Field(NoteType)
@@ -16,7 +19,9 @@ class CreateNote(graphene.Mutation):
 
     @login_required
     def mutate(self, info, name, description, *args, **kwargs):
-        n = Note.objects.create(name=name, description=description, user=info.context.user)
+        n = Note.objects.create(
+            name=name, description=description, user=info.context.user
+        )
         return CreateNote(n)
 
 
@@ -37,6 +42,7 @@ class UpdateNote(graphene.Mutation):
         n.update(**kwargs)
         return CreateNote(n[0])
 
+
 class DeleteNote(graphene.Mutation):
     message = graphene.String()
 
@@ -51,18 +57,16 @@ class DeleteNote(graphene.Mutation):
             raise Exception("No such Note")
         return DeleteNote("Done")
 
+
 class Query(graphene.ObjectType):
     Notes = graphene.List(NoteType)
 
     @login_required
-    def resolve_Notes(self,info):
+    def resolve_Notes(self, info):
         return Note.objects.filter(user=info.context.user)
+
 
 class Mutation(graphene.ObjectType):
     Create_Note = CreateNote.Field()
     Delete_Note = DeleteNote.Field()
     Update_Note = UpdateNote.Field()
-
-
-    
-

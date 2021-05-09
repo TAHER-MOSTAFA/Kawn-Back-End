@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "channels",
     # local apps
     "todo.apps.TodoConfig",
     "users.apps.UsersConfig",
@@ -49,7 +50,7 @@ INSTALLED_APPS = [
     "social_django",
     "corsheaders",
     "nested_admin",
-    "channels",
+    "friendship",
 ]
 
 MIDDLEWARE = [
