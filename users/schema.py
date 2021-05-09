@@ -1,8 +1,10 @@
-import graphene 
-from graphene_django import DjangoObjectType, DjangoConnectionField
-from .models import Member, Circle
+import graphene
 from django.shortcuts import get_object_or_404
+from graphene_django import DjangoConnectionField, DjangoObjectType
 from graphql_jwt.decorators import login_required
+
+from .models import Circle, Member
+
 
 class MemberType(DjangoObjectType):
     class Meta:
@@ -13,7 +15,7 @@ class MemberType(DjangoObjectType):
 class CircleType(DjangoObjectType):
     class Meta:
         model = Circle
-        
+
 
 class CreateMember(graphene.Mutation):
     member = graphene.Field(MemberType)
@@ -23,7 +25,7 @@ class CreateMember(graphene.Mutation):
         email = graphene.String(required=True)
         password = graphene.String(required=True)
 
-    def mutate(self, info,fullName,email,password,*args, **kwargs):
+    def mutate(self, info, fullName, email, password, *args, **kwargs):
         user = Member(
             full_name=fullName,
             email=email,
@@ -40,22 +42,30 @@ class CreateCircle(graphene.Mutation):
         name = graphene.String()
         description = graphene.String()
 
-    def mutate(self, info, name, description, ):
+    def mutate(
+        self,
+        info,
+        name,
+        description,
+    ):
         circle = Circle(name=name, description=description)
         circle.save()
         return CreateCircle(circle)
 
 
 class Query(graphene.ObjectType):
-    check_email = graphene.Boolean(email = graphene.String())
+    check_email = graphene.Boolean(email=graphene.String())
     circles = graphene.List(CircleType)
     profile = graphene.Field(MemberType)
 
     @login_required
-    def resolve_profile(self,info):
+    def resolve_profile(self, info):
         return info.context.user
-    
-    def resolve_circles(self, info, ):
+
+    def resolve_circles(
+        self,
+        info,
+    ):
         return Circle.objects.all()
 
     def resolve_check_email(self, info, email, **Kwargs):
