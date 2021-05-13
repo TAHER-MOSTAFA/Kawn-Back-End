@@ -7,6 +7,7 @@ from channels.auth import AuthMiddlewareStack, get_user
 from django.core.asgi import get_asgi_application
 
 from .cache_utils import cache_clear_userstate, cache_user_is_online
+
 from .schema import schema
 
 
@@ -21,6 +22,7 @@ class GraphqlWsConsumer(channels_graphql_ws.GraphqlWsConsumer):
     async def disconnect(self, code):
         cache_clear_userstate(self.scope["user"].pk)
         super().disconnect(code)
+
 
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "kawen.settings")

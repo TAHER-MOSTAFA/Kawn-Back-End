@@ -19,6 +19,7 @@ class MemberType(DjangoObjectType):
         return is_online(pk=parent.id)
 
 
+
 class CircleType(DjangoObjectType):
     class Meta:
         model = Circle
