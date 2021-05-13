@@ -16,6 +16,7 @@ class Query(
     courses.schema.Query,
     chat.schema.Query,
     friends.schema.Query,
+
 ):
     pass
 
