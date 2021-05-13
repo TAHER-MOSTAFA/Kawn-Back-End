@@ -14,6 +14,7 @@ class GraphqlWsConsumer(channels_graphql_ws.GraphqlWsConsumer):
 
     async def on_connect(self, payload):
         self.scope["user"] = await get_user(self.scope)
+        print(f"{self.scope['user'] } connected")
 
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "kawen.settings")

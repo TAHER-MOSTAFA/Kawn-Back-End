@@ -3,6 +3,7 @@ import graphql_jwt
 
 import chat.schema
 import courses.schema
+import friends.schema
 import notes.schema
 import todo.schema
 import users.schema
@@ -14,6 +15,7 @@ class Query(
     notes.schema.Query,
     courses.schema.Query,
     chat.schema.Query,
+    friends.schema.Query,
 ):
     pass
 
