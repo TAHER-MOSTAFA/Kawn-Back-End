@@ -34,7 +34,6 @@ class Member(AbstractUser):
     full_name = models.CharField(max_length=30)
     image = models.ImageField(upload_to="media/profile_pics", default="1.jpg")
     cover = models.ImageField(upload_to="media/profile_pics", default="1.jpg")
-    is_online = models.BooleanField(default=False)
 
     first_name = None
     last_name = None
