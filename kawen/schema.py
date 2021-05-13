@@ -26,6 +26,7 @@ class Mutation(
     notes.schema.Mutation,
     courses.schema.Mutation,
     chat.schema.Mutation,
+    friends.schema.Mutation,
 ):
     token_auth = graphql_jwt.ObtainJSONWebToken.Field()
     verify_token = graphql_jwt.Verify.Field()

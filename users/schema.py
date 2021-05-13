@@ -3,6 +3,8 @@ from django.shortcuts import get_object_or_404
 from graphene_django import DjangoConnectionField, DjangoObjectType
 from graphql_jwt.decorators import login_required
 
+from kawen.cache_utils import is_online
+
 from .models import Circle, Member
 
 
@@ -10,6 +12,11 @@ class MemberType(DjangoObjectType):
     class Meta:
         model = Member
         exclude = ["password"]
+
+    IsOnline = graphene.Boolean()
+
+    def resolve_IsOnline(parent, info):
+        return is_online(pk=parent.id)
 
 
 class CircleType(DjangoObjectType):
