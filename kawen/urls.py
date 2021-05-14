@@ -13,4 +13,5 @@ urlpatterns = [
     path("social-auth/", include("social_django.urls", namespace="social")),
     path("login/", login, name="login"),
     path("_nested_admin/", include("nested_admin.urls")),
+    path("friendship/", include("friendship.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
