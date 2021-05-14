@@ -10,16 +10,14 @@ class OnNewChatMessage(channels_graphql_ws.Subscription):
     text = graphene.String()
 
     class Arguments:
-        dialog = graphene.Int()
+        None
 
     @login_required
     def subscribe(self, info, dialog=None):
-        if info.context.user in Dialog.objects.get(id=dialog).users.all():
-            return [str(dialog)]
-        else:
-            raise Exception("NO permission")
+        dialogs = Dialog.objects.filter(users__id=info.context.user.id)
+        return [str(dialog.id) for dialog in dialogs]
 
-    def publish(self, info, dialog=None):
+    def publish(self, info):
         new_msg_dialog = self["dialog"]
         new_msg_text = self["text"]
 
