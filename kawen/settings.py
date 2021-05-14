@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "notes.apps.NotesConfig",
     "courses.apps.CoursesConfig",
     "chat.apps.ChatConfig",
+    "friends.apps.FriendsConfig",
     # third party
     "graphene_django",
     "social_django",

@@ -3,6 +3,8 @@ from django.shortcuts import get_object_or_404
 from graphene_django import DjangoConnectionField, DjangoObjectType
 from graphql_jwt.decorators import login_required
 
+from kawen.cache_utils import is_online
+
 from .models import Circle, Member
 
 
@@ -10,6 +12,11 @@ class MemberType(DjangoObjectType):
     class Meta:
         model = Member
         exclude = ["password"]
+
+    IsOnline = graphene.Boolean()
+
+    def resolve_IsOnline(parent, info):
+        return is_online(pk=parent.id)
 
 
 class CircleType(DjangoObjectType):
@@ -54,7 +61,7 @@ class CreateCircle(graphene.Mutation):
 
 
 class Query(graphene.ObjectType):
-    check_email = graphene.Boolean(email=graphene.String())
+    email_is_taken = graphene.Boolean(email=graphene.String())
     circles = graphene.List(CircleType)
     profile = graphene.Field(MemberType)
 
@@ -68,7 +75,7 @@ class Query(graphene.ObjectType):
     ):
         return Circle.objects.all()
 
-    def resolve_check_email(self, info, email, **Kwargs):
+    def resolve_email_is_taken(self, info, email, **Kwargs):
         try:
             Member.objects.get(email=email)
             return True
