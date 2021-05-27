@@ -26,3 +26,7 @@ class OnNewChatMessage(channels_graphql_ws.Subscription):
     @classmethod
     def new_chat_message(cls, dialog, text):
         cls.broadcast(group=str(dialog), payload={"dialog": dialog, "text": text})
+
+
+class Subscription(graphene.ObjectType):
+    on_new_chat_message = OnNewChatMessage.Field()

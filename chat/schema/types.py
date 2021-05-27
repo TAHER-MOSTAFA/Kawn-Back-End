@@ -1,4 +1,5 @@
 import graphene
+from django.db.models.base import Model
 from graphene_django import DjangoObjectType
 
 from chat.models import *
@@ -19,3 +20,8 @@ class PaginatedMessageType(graphene.ObjectType):
 class DialogType(DjangoObjectType):
     class Meta:
         model = Dialog
+
+
+class UserMessagesType(DjangoObjectType):
+    class Meta:
+        model = UserMessage
