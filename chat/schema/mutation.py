@@ -37,10 +37,10 @@ class MarkMessageSeen(graphene.Mutation):
 
     @login_required
     def mutate(self, info, message_id):
+        CacheUsersMsgs.msg_seen(msg_id=message_id, user_id=info.context.user_id)
         UserMessage.objects.filter(
             message_id=message_id, user_id=info.context.user_id
         ).delete()
-        CacheUsersMsgs.msg_seen(msg_id=message_id, user_id=info.context.user_id)
         return MarkMessageSeen(ok=True)
 
 
