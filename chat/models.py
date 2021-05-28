@@ -1,12 +1,16 @@
 from django.contrib.auth import get_user_model
 from django.db import models
 
-user = get_user_model()
+from .managers import DialogManager, UserMessageManager
+
+User = get_user_model()
 
 
 class Dialog(models.Model):
-    users = models.ManyToManyField(user)
+    users = models.ManyToManyField(User)
     time_date = models.DateTimeField(auto_now_add=True)
+
+    objects = DialogManager()
 
 
 class Message(models.Model):
@@ -14,4 +18,11 @@ class Message(models.Model):
     image = models.ImageField(null=True, blank=True)
     time_date = models.DateTimeField(auto_now_add=True)
     dialog = models.ForeignKey(Dialog, on_delete=models.CASCADE)
-    sender = models.ForeignKey(user, on_delete=models.CASCADE)
+    sender = models.ForeignKey(User, on_delete=models.CASCADE)
+
+
+class UserMessage(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    message = models.ForeignKey(Message, on_delete=models.CASCADE)
+
+    objects = UserMessageManager()

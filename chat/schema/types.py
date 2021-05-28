@@ -1,4 +1,5 @@
 import graphene
+from django.db.models.base import Model
 from graphene_django import DjangoObjectType
 
 from chat.models import *

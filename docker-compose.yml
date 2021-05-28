@@ -1,15 +1,37 @@
 version: "3.3"
 
 services:
-#   db:
-#     image: postgres
-#     env_file:
-#       - .postgres
+  db:
+    image: postgres
+    env_file:
+      - .postgres
+    expose:
+      - "5432"
   django:
-    build: .
+    build:
+      context : .
+    env_file:
+      - .postgres
+      - .env
     volumes:
       - .:/code
     ports:
       - "8000:8000"
-    # depends_on:
-    #   - db
+    depends_on:
+      - db
+  redis:
+    image: redis:5.0
+  celery:
+    restart: always
+    build:
+      context : .
+    entrypoint: "bash celery.sh"
+    volumes:
+      - .:/code
+    env_file:
+      - .postgres
+      - .env
+    depends_on:
+      - db
+      - redis
+      - django
