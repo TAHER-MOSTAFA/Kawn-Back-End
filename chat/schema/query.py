@@ -1,10 +1,11 @@
 import graphene
+from django.core.cache import cache
 from graphql_jwt.decorators import login_required
 
 from chat.models import Dialog, Message, UserMessage
-from chat.utils import get_paginator
+from chat.utils import CacheUsersMsgs, get_paginator
 
-from .types import PaginatedMessageType, UserMessagesType
+from .types import MessageType, PaginatedMessageType
 
 
 class Query(graphene.ObjectType):
@@ -14,7 +15,7 @@ class Query(graphene.ObjectType):
         page=graphene.Int(),
         per_page=graphene.Int(),
     )
-    UserUnseenMessages = graphene.List(UserMessagesType)
+    UserUnseenMessages = graphene.List(MessageType)
 
     @login_required
     def resolve_Dialog_message_history(self, info, dialog_id, page, per_page):
@@ -25,4 +26,4 @@ class Query(graphene.ObjectType):
 
     @login_required
     def resolve_UserUnseenMessages(self, info):
-        return UserMessage.objects.filter(user_id=info.context.user.id)
+        return CacheUsersMsgs.get_user_missed_msgs(user_id=info.context.user.id)

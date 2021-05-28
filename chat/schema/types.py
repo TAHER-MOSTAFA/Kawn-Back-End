@@ -20,8 +20,3 @@ class PaginatedMessageType(graphene.ObjectType):
 class DialogType(DjangoObjectType):
     class Meta:
         model = Dialog
-
-
-class UserMessagesType(DjangoObjectType):
-    class Meta:
-        model = UserMessage

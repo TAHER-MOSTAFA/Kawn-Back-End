@@ -20,15 +20,6 @@ class Message(models.Model):
     dialog = models.ForeignKey(Dialog, on_delete=models.CASCADE)
     sender = models.ForeignKey(User, on_delete=models.CASCADE)
 
-    def save(self, *args, **kwargs):
-        super(Message, self).save(*args, **kwargs)
-
-        users = self.dialog.users.exclude(id=self.sender_id)
-
-        UserMessage.objects.bulk_create(
-            [UserMessage(user_id=user.id, message_id=self.id) for user in users]
-        )
-
 
 class UserMessage(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

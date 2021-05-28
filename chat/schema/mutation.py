@@ -2,6 +2,7 @@ import graphene
 from graphql_jwt.decorators import login_required
 
 from chat.models import Dialog, Message, UserMessage
+from chat.utils import CacheUsersMsgs
 
 from .subscription import OnNewChatMessage
 
@@ -15,11 +16,14 @@ class SendChatMessage(graphene.Mutation):
 
     @login_required
     def mutate(self, info, dialog_id, text):
-        if info.context.user not in Dialog.objects.get(id=dialog_id).users.all():
+        dialog_users = Dialog.objects.get(id=dialog_id).users.all()
+        if info.context.user not in dialog_users:
             raise Exception("NO permission")
 
-        Message.objects.create(text=text, sender=info.context.user, dialog_id=dialog_id)
-
+        msg = Message.objects.create(
+            text=text, sender=info.context.user, dialog_id=dialog_id
+        )
+        CacheUsersMsgs.new_message(msg, dialog_users)
         OnNewChatMessage.new_chat_message(dialog=dialog_id, text=text)
 
         return SendChatMessage(ok=True)
@@ -32,12 +36,11 @@ class MarkMessageSeen(graphene.Mutation):
         user_message_id = graphene.Int()
 
     @login_required
-    def mutate(self, info, user_message_id):
-        obj = UserMessage.objects.get(id=user_message_id)
-        if obj.user_id != info.context.user.id:
-            raise Exception("NO permission")
-
-        UserMessage.objects.get(id=user_message_id).delete()
+    def mutate(self, info, message_id):
+        UserMessage.objects.filter(
+            message_id=message_id, user_id=info.context.user_id
+        ).delete()
+        CacheUsersMsgs.msg_seen(msg_id=message_id, user_id=info.context.user_id)
         return MarkMessageSeen(ok=True)
 
 
