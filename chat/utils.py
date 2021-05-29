@@ -7,6 +7,7 @@ from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.db.models.query import QuerySet
 
 from .models import Dialog, Message, User, UserMessage
+
 from .tasks import write_user_missed_messages_to_db
 
 
@@ -36,6 +37,7 @@ class CacheUsersMsgs:
     @classmethod
     def new_message(cls, msg: Message, dialog_users: List[int]) -> None:
         (users_ids := dialog_users).remove(msg.sender_id)
+
         cls.__write_to_cache(msg, users_ids)
         cls.__write_async_db(msg.id, users_ids)
 
@@ -49,6 +51,7 @@ class CacheUsersMsgs:
                 qs[user_id] = [msg]
         cls.cache.set_many(qs)
 
+
     @classmethod
     def get_user_missed_msgs(cls, user_id) -> QuerySet:
         msgs = cls.__fetch_cached_user_msgs(user_id)
@@ -60,6 +63,7 @@ class CacheUsersMsgs:
     @classmethod
     def __fetch_cached_user_msgs(cls, user_id) -> List[Message]:
         return cls.cache.get(user_id)
+
 
     @classmethod
     def __fetch_user_messages_from_db(cls, user_id) -> List[Message]:
@@ -85,3 +89,4 @@ class CacheUsersMsgs:
             dialog = [user.id for user in dialog_users]
             cls.cache.set(f"{dialog_id}_dialog", dialog)
         return dialog
+

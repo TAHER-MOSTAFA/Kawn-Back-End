@@ -19,7 +19,7 @@ class Query(graphene.ObjectType):
         PaginatedMessageType,
         page=graphene.Int(),
         per_page=graphene.Int(),
-    )
+
 
     @login_required
     def resolve_Dialog_message_history(self, info, dialog_id, page, per_page):

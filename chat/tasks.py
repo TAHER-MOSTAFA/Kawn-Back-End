@@ -5,6 +5,7 @@ from kawen.celery import app
 from .models import Message, UserMessage
 
 
+
 @app.task
 def write_user_missed_messages_to_db(msg_id, users_ids):
 
