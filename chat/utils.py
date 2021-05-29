@@ -30,7 +30,7 @@ def get_paginator(qs, page_size, page, paginated_type, **kwargs):
 
 class CacheUsersMsgs:
     # key -> value
-    # "user.id_msg.id" -> msg.id
+    # user.id -> List[Message]
     cache = caches["default"]
 
     @classmethod
@@ -41,28 +41,38 @@ class CacheUsersMsgs:
 
     @classmethod
     def __write_to_cache(cls, msg: Message, users_ids: List) -> None:
-        users_message = {f"{user_id}_{msg.id}": msg for user_id in users_ids}
-        cls.cache.set_many(users_message)
+        qs = cls.cache.get_many(users_ids)
+        for user_id in users_ids:
+            if qs.get(user_id) != None:
+                qs.get(user_id).append(msg)
+            else:
+                qs[user_id] = [msg]
+        cls.cache.set_many(qs)
 
     @classmethod
     def get_user_missed_msgs(cls, user_id) -> QuerySet:
         msgs = cls.__fetch_cached_user_msgs(user_id)
 
-        if len(msgs) == 0:
+        if not msgs:
             msgs = cls.__fetch_user_messages_from_db(user_id)
         return msgs
 
     @classmethod
     def __fetch_cached_user_msgs(cls, user_id) -> List[Message]:
-        return cls.cache.keys(f"{user_id}_**")
+        return cls.cache.get(user_id)
 
     @classmethod
     def __fetch_user_messages_from_db(cls, user_id) -> List[Message]:
         return list(Message.objects.filter(usermessage__user_id=user_id))
 
     def __write_async_db(msg_id, users_ids) -> None:
-        write_user_missed_messages_to_db.apply_async(args=(msg_id, users_ids))
+        write_user_missed_messages_to_db.apply_async(
+            args=(msg_id, users_ids),
+        )
 
     @classmethod
     def msg_seen(cls, user_id, msg_id) -> None:
-        cls.cache.delete(f"{user_id}_{msg_id}")
+        q = cls.cache.get(user_id)
+        msg = Message.objects.get(pk=msg_id)
+        q.remove(msg)
+        UserMessage.objects.filter(message_id=msg_id, user_id=user_id).delete()
