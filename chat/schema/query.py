@@ -31,4 +31,4 @@ class Query(graphene.ObjectType):
     @login_required
     def resolve_UserUnseenMessages(self, info, page, per_page):
         qs = CacheUsersMsgs.get_user_missed_msgs(user_id=info.context.user.id)
-        return get_paginator(qs, per_page, page, PaginatedMessageType, len(qs))
+        return get_paginator(qs, per_page, page, PaginatedMessageType)

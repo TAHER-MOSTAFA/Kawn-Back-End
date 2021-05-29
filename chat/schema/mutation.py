@@ -1,4 +1,5 @@
 import graphene
+from django.core.cache import cache
 from graphql_jwt.decorators import login_required
 
 from chat.models import Dialog, Message, UserMessage
@@ -16,8 +17,8 @@ class SendChatMessage(graphene.Mutation):
 
     @login_required
     def mutate(self, info, dialog_id, text):
-        dialog_users = Dialog.objects.get(id=dialog_id).users.all()
-        if info.context.user not in dialog_users:
+        dialog_users = CacheUsersMsgs.get_dialog_get_or_set(dialog_id)
+        if info.context.user.id not in dialog_users:
             raise Exception("NO permission")
 
         msg = Message.objects.create(
