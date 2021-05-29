@@ -15,7 +15,11 @@ class Query(graphene.ObjectType):
         page=graphene.Int(),
         per_page=graphene.Int(),
     )
-    UserUnseenMessages = graphene.List(MessageType)
+    UserUnseenMessages = graphene.Field(
+        PaginatedMessageType,
+        page=graphene.Int(),
+        per_page=graphene.Int(),
+    )
 
     @login_required
     def resolve_Dialog_message_history(self, info, dialog_id, page, per_page):
@@ -25,5 +29,6 @@ class Query(graphene.ObjectType):
         return get_paginator(qs, per_page, page, PaginatedMessageType)
 
     @login_required
-    def resolve_UserUnseenMessages(self, info):
-        return CacheUsersMsgs.get_user_missed_msgs(user_id=info.context.user.id)
+    def resolve_UserUnseenMessages(self, info, page, per_page):
+        qs = CacheUsersMsgs.get_user_missed_msgs(user_id=info.context.user.id)
+        return get_paginator(qs, per_page, page, PaginatedMessageType, len(qs))
