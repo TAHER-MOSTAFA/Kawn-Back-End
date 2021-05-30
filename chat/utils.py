@@ -30,7 +30,9 @@ def get_paginator(qs, page_size, page, paginated_type, **kwargs):
 
 class CacheUsersMsgs:
     # key -> value
-    # user.id -> List[Message]
+    # user.id -> {  "total_msgs" :
+    #               dialog_id : List[Message]
+    # }
     cache = caches["default"]
 
     @classmethod
@@ -79,7 +81,7 @@ class CacheUsersMsgs:
 
     @classmethod
     def get_dialog_get_or_set(cls, dialog_id):
-        dialog = cls.cache.get(f"{dialog_id}_dialog")
+        dialog = cls.cache.get(f"{dialog_id}_dUsers")
         if dialog == None:
             dialog_users = Dialog.objects.get(id=dialog_id).users.all()
             dialog = [user.id for user in dialog_users]

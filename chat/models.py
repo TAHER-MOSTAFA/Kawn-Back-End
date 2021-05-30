@@ -9,6 +9,7 @@ User = get_user_model()
 class Dialog(models.Model):
     users = models.ManyToManyField(User)
     time_date = models.DateTimeField(auto_now_add=True)
+    last_sent = models.DateTimeField(null=True, blank=True)
 
     objects = DialogManager()
 
@@ -19,6 +20,9 @@ class Message(models.Model):
     time_date = models.DateTimeField(auto_now_add=True)
     dialog = models.ForeignKey(Dialog, on_delete=models.CASCADE)
     sender = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    class Meta:
+        ordering = ("-time_date",)
 
 
 class UserMessage(models.Model):
