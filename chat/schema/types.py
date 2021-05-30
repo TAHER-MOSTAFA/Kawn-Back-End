@@ -21,21 +21,13 @@ class PaginatedMessageType(graphene.ObjectType):
 
 
 class DialogType(DjangoObjectType):
-    unseen_num = graphene.Int()
-    last_msg = MessageType()
     unseen_msgs = graphene.Field(PaginatedMessageType)
 
     class Meta:
         model = Dialog
 
-    def resolve_unseen_num(self, info):
-        return cache.get(info.context.user.id).get("dialogs").get(self.id) or 0
-
-    def resolve_last_msg(self, info):
-        return cache.get(f"{self.id}_lstmsg")
-
     def resolve_unseen_msgs(self, info):
-        num = self.unseen_msgs
+        num = cache.get(info.context.user.id).get("dialogs").get(self.id) or 0
         if not num:
             return None
         qs = Message.objects.filter(dialog_id=self.id)
@@ -44,7 +36,7 @@ class DialogType(DjangoObjectType):
         c_user["dialogs"][self.id] -= 10
         cache.set(info.context.user.id, c_user)
         return get_paginator(
-            qs=qs, per_page=10, page=int(num / 10), paginated_type=PaginatedMessageType
+            qs=qs, page_size=10, page=int(num / 10), paginated_type=PaginatedMessageType
         )
 
 
@@ -68,13 +60,37 @@ class DialogType(DjangoObjectType):
 """
 
 
+class SimpleDialogType(DjangoObjectType):
+    unseen_num = graphene.Int()
+    last_msg = graphene.Field(MessageType)
+
+    class Meta:
+        model = Dialog
+        fields = ["id", "last_sent"]
+
+    def resolve_unseen_num(self, info):
+        try:
+            return cache.get(info.context.user.id).get("dialogs").get(self.id)
+        except:
+            return None
+
+    def resolve_last_msg(self, info):
+        return cache.get(f"{self.id}_lstmsg")
+
+
 class UnseenMsgsType(graphene.ObjectType):
     total_msgs = graphene.Int()
-    dialogs = graphene.List(DialogType)
+    dialogs = graphene.List(SimpleDialogType)
 
     def resolve_total_msgs(self, info):
-        return cache.get(info.context.user.id).get("total_msgs") or 0
+        try:
+            return cache.get(info.context.user.id).get("total_msgs")
+        except:
+            return 0
 
     def resolve_dialogs(self, info):
-        dialog_ids = cache.get(info.context.user.id).get("dialogs").keys()
-        return Dialog.objects.filter(pk__in=dialog_ids).order_by("last_sent")
+        usr_msg = cache.get(info.context.user.id)
+        if usr_msg:
+            dialog_ids = usr_msg.get("dialogs").keys()
+            return Dialog.objects.filter(pk__in=dialog_ids).order_by("last_sent")
+        return None
