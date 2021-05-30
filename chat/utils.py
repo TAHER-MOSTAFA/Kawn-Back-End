@@ -19,10 +19,10 @@ def get_paginator(qs, page_size, page, paginated_type, **kwargs):
         page_obj = p.page(p.num_pages)
 
     return paginated_type(
-        page=page_obj.number,
-        total_pages=p.num_pages,
-        has_next=page_obj.has_next(),
-        messages=page_obj.object_list,
+        page_obj.number,
+        p.num_pages,
+        page_obj.has_next(),
+        page_obj.object_list,
         **kwargs,
     )
 

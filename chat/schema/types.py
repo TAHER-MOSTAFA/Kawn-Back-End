@@ -78,19 +78,8 @@ class SimpleDialogType(DjangoObjectType):
         return cache.get(f"{self.id}_lstmsg")
 
 
-class UnseenMsgsType(graphene.ObjectType):
-    total_msgs = graphene.Int()
-    dialogs = graphene.List(SimpleDialogType)
-
-    def resolve_total_msgs(self, info):
-        try:
-            return cache.get(info.context.user.id).get("total_msgs")
-        except:
-            return 0
-
-    def resolve_dialogs(self, info):
-        usr_msg = cache.get(info.context.user.id)
-        if usr_msg:
-            dialog_ids = usr_msg.get("dialogs").keys()
-            return Dialog.objects.filter(pk__in=dialog_ids).order_by("last_sent")
-        return None
+class PaginatedDialogType(graphene.ObjectType):
+    page = graphene.Int()
+    total_pages = graphene.Int()
+    has_next = graphene.Boolean()
+    dialog = graphene.List(SimpleDialogType)

@@ -7,7 +7,7 @@ from chat.models import Dialog, Message, UserMessage
 from chat.permissions import UserInDialog
 from chat.utils import CacheUsersMsgs, get_paginator
 
-from .types import DialogType, MessageType, PaginatedMessageType, UnseenMsgsType
+from .types import PaginatedDialogType, PaginatedMessageType
 
 
 class Query(graphene.ObjectType):
@@ -17,8 +17,13 @@ class Query(graphene.ObjectType):
         page=graphene.Int(required=False, default_value=1),
         per_page=graphene.Int(required=False, default_value=20),
     )
-    UserUnseenMessages = graphene.Field(UnseenMsgsType)
-    # MarkDialogSeen = graphene.Boolean(Name="ok",dialog_id=graphene.Int())
+    UserDialogs = graphene.Field(
+        PaginatedDialogType,
+        page=graphene.Int(required=False, default_value=1),
+        per_page=graphene.Int(required=False, default_value=10),
+    )
+
+    TotalUnseenMsgs = graphene.Int()
 
     @login_required
     def resolve_Dialog_message_history(self, info, dialog_id, page, per_page):
@@ -46,5 +51,18 @@ class Query(graphene.ObjectType):
         return get_paginator(qs, per_page, page, PaginatedMessageType)
 
     @login_required
-    def resolve_UserUnseenMessages(self, info):
-        return UnseenMsgsType()
+    def resolve_UserDialogs(self, info, page, per_page):
+        usr_msg = cache.get(info.context.user.id)
+        if usr_msg:
+            dialog_ids = usr_msg.get("dialogs").keys()
+            qs = Dialog.objects.filter(pk__in=dialog_ids).order_by("-last_sent")
+        qs = info.context.user.dialog_set.order_by("-last_sent")
+
+        return get_paginator(qs, per_page, page, PaginatedDialogType)
+
+    @login_required
+    def resolve_TotalUnseenMsgs(self, info):
+        try:
+            return cache.get(info.context.user.id).get("total_msgs")
+        except:
+            return 0
