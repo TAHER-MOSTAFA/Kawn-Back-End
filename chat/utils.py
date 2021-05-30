@@ -8,8 +8,6 @@ from django.db.models.query import QuerySet
 
 from .models import Dialog, Message, User, UserMessage
 
-from .tasks import write_user_missed_messages_to_db
-
 
 def get_paginator(qs, page_size, page, paginated_type, **kwargs):
     p = Paginator(qs, page_size)
@@ -21,25 +19,25 @@ def get_paginator(qs, page_size, page, paginated_type, **kwargs):
         page_obj = p.page(p.num_pages)
 
     return paginated_type(
-        page=page_obj.number,
-        total_pages=p.num_pages,
-        has_next=page_obj.has_next(),
-        messages=page_obj.object_list,
+        page_obj.number,
+        p.num_pages,
+        page_obj.has_next(),
+        page_obj.object_list,
         **kwargs,
     )
 
 
 class CacheUsersMsgs:
     # key -> value
-    # user.id -> List[Message]
+    # user.id -> {  "total_msgs" :
+    #               dialog_id : List[Message]
+    # }
     cache = caches["default"]
 
     @classmethod
     def new_message(cls, msg: Message, dialog_users: List[int]) -> None:
         (users_ids := dialog_users).remove(msg.sender_id)
-
         cls.__write_to_cache(msg, users_ids)
-        cls.__write_async_db(msg.id, users_ids)
 
     @classmethod
     def __write_to_cache(cls, msg: Message, users_ids: List) -> None:
@@ -50,8 +48,7 @@ class CacheUsersMsgs:
             else:
                 qs[user_id] = [msg]
         cls.cache.set_many(qs)
-
-
+        
     @classmethod
     def get_user_missed_msgs(cls, user_id) -> QuerySet:
         msgs = cls.__fetch_cached_user_msgs(user_id)
@@ -64,15 +61,9 @@ class CacheUsersMsgs:
     def __fetch_cached_user_msgs(cls, user_id) -> List[Message]:
         return cls.cache.get(user_id)
 
-
     @classmethod
     def __fetch_user_messages_from_db(cls, user_id) -> List[Message]:
         return list(Message.objects.filter(usermessage__user_id=user_id))
-
-    def __write_async_db(msg_id, users_ids) -> None:
-        write_user_missed_messages_to_db.apply_async(
-            args=(msg_id, users_ids),
-        )
 
     @classmethod
     def msg_seen(cls, user_id, msg_id) -> None:
@@ -83,10 +74,9 @@ class CacheUsersMsgs:
 
     @classmethod
     def get_dialog_get_or_set(cls, dialog_id):
-        dialog = cls.cache.get(f"{dialog_id}_dialog")
+        dialog = cls.cache.get(f"{dialog_id}_dUsers")
         if dialog == None:
             dialog_users = Dialog.objects.get(id=dialog_id).users.all()
             dialog = [user.id for user in dialog_users]
             cls.cache.set(f"{dialog_id}_dialog", dialog)
         return dialog
-
