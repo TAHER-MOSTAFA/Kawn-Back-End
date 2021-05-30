@@ -82,4 +82,4 @@ class PaginatedDialogType(graphene.ObjectType):
     page = graphene.Int()
     total_pages = graphene.Int()
     has_next = graphene.Boolean()
-    dialog = graphene.List(SimpleDialogType)
+    dialogs = graphene.List(SimpleDialogType)
