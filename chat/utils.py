@@ -48,7 +48,7 @@ class CacheUsersMsgs:
             else:
                 qs[user_id] = [msg]
         cls.cache.set_many(qs)
-
+        
     @classmethod
     def get_user_missed_msgs(cls, user_id) -> QuerySet:
         msgs = cls.__fetch_cached_user_msgs(user_id)

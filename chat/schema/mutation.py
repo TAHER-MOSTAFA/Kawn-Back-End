@@ -5,6 +5,7 @@ from graphql_jwt.decorators import login_required
 from chat.missedmsgs.cache import MissedMsgs
 from chat.models import Dialog, Message, UserMessage
 from chat.permissions import UserInDialog
+
 from chat.utils import CacheUsersMsgs
 
 from .subscription import OnNewChatMessage
@@ -51,6 +52,7 @@ class MarkDialogSeen(graphene.Mutation):
         except:
             pass
         return True
+
 
 
 class Mutation(graphene.ObjectType):

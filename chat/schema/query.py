@@ -10,6 +10,7 @@ from chat.utils import CacheUsersMsgs, get_paginator
 from .types import PaginatedDialogType, PaginatedMessageType
 
 
+
 class Query(graphene.ObjectType):
     Dialog_message_history = graphene.Field(
         PaginatedMessageType,

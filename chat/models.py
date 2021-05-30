@@ -15,6 +15,8 @@ class Dialog(models.Model):
 
     objects = DialogManager()
 
+    objects = DialogManager()
+
 
 class Message(models.Model):
     text = models.TextField()
