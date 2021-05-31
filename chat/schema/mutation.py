@@ -1,3 +1,4 @@
+from django.http.response import HttpResponseBadRequest
 import graphene
 from django.core.cache import cache
 from graphql_jwt.decorators import login_required
@@ -50,10 +51,36 @@ class MarkDialogSeen(graphene.Mutation):
             c_user["dialogs"][dialog_id] = 0
             cache.set(info.context.user.id, c_user)
         except:
-            pass
+            return False
         return True
 
 
+class AddUserToDialog(graphene.Mutation):
+    ok = graphene.Boolean()
+    class Arguments:
+        dialog_id = graphene.Int()
+        other_user_id= graphene.Int()
+
+    @login_required
+    def mutate(self, info, dialog_id, other_user_id):
+        UserInDialog(info, dialog_id)
+        try:
+            Dialog.objects.get(dialog_id).users.add(other_user_id)
+            return True
+        except:
+            HttpResponseBadRequest()
+
+class LeaveDialog(graphene.Mutation):
+    ok = graphene.Boolean()
+    class Arguments:
+        dialog_id = graphene.Int()
+    
+    @login_required
+    def mutate(self, info, dialog_id):
+        UserInDialog(info, dialog_id)
+        cache.delete(f"{dialog_id}_dUsers")
+        Dialog.objects.get(dialog_id).users.remove(info.context.user.id)
+        return True
 
 class Mutation(graphene.ObjectType):
     Send_chat_message = SendChatMessage.Field()
