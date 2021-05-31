@@ -85,3 +85,5 @@ class LeaveDialog(graphene.Mutation):
 class Mutation(graphene.ObjectType):
     Send_chat_message = SendChatMessage.Field()
     Mark_dialog_seen = MarkDialogSeen.Field()
+    Add_User_to_dialog = AddUserToDialog.Field()
+    Leave_dialog = LeaveDialog.Field()
